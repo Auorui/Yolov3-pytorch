@@ -8,4 +8,4 @@ pyzjr==1.1.6
 ````
 的环境下运行成功
 
-[CSDN博客链接]([https://juejin.cn/](https://blog.csdn.net/m0_62919535/article/details/132639078)https://blog.csdn.net/m0_62919535/article/details/132639078)
+[CSDN博客链接](https://blog.csdn.net/m0_62919535/article/details/132639078)
