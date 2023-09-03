@@ -17,8 +17,9 @@ torch1.9安装指令：pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 
 
 最好使用pip安装，conda指令有些问题。
 
-**2.【如果遇到了AttributeError: 'ImageDraw' object has no attribute 'textsize'】
-可以降低pillow版本  pip install Pillow==9.5.0**
+**2.【如果遇到了AttributeError: 'ImageDraw' object has no attribute 'textsize'】**
+
+可以降低pillow版本  pip install Pillow==9.5.0
 
 **3. 这里用到了可视化，所以要下载tensorboard**
 
@@ -31,6 +32,8 @@ pip install mediapipe -i https://pypi.tuna.tsinghua.edu.cn/simple
 **5、安装pyzjr**
 
 pip install pyzjr -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+1.1.6版本可用。
 
 ## 文件下载
 训练所需的yolo_weights.pth可以在百度网盘下载。  
@@ -64,11 +67,22 @@ VOCdevkit
 
 可以看到这里，训练前将标签文件放在VOCdevkit文件夹下的VOC2007文件夹下的SegmentationClass中。训练前将图片文件放在VOCdevkit文件夹下的VOC2007文件夹下的JPEGImages中。   
 
+model_data下的classes.txt文件一定要修改，要与你自己检测的目标对应才行，比如我这里有三类：
+````
+spalling
+break
+rebar
+````
+
 #### 3. 数据集的处理   
 修改voc_yolo_txt.py里面的annotation_mode=2，运行voc_annotation.py生成根目录下的2007_train.txt和2007_val.txt。   
 
 #### 4. 开始网络训练   
-train.py的默认参数用于训练VOC数据集，直接运行train.py即可开始训练。   
+train.py的默认参数用于训练VOC数据集，直接运行train.py即可开始训练。如果需要修改的地方，可以查看trainconfig.py文件，里面就是一些训练参数的修改，
+部分是不需要修改的。不明白的地方可以查看下面的help。
+
+![image](https://github.com/Auorui/Yolov3-pytorch/assets/100789256/47ca5176-a526-4837-a979-07ed53fb3b24)
+
 
 #### 5. 训练结果预测   
 训练结果预测需要用到两个文件，分别是yolo.py和predict.py。
@@ -80,34 +94,7 @@ classes_path指向检测类别所对应的txt。**
 
 完成修改后就可以运行predict.py进行检测了。运行后输入图片路径即可检测。   
 
-### b、训练自己的数据集
-1. 数据集的准备  
-**本文使用VOC格式进行训练，训练前需要自己制作好数据集，**    
-训练前将标签文件放在VOCdevkit文件夹下的VOC2007文件夹下的Annotation中。   
-训练前将图片文件放在VOCdevkit文件夹下的VOC2007文件夹下的JPEGImages中。   
-
-2. 数据集的处理  
-在完成数据集的摆放之后，我们需要利用voc_annotation.py获得训练用的2007_train.txt和2007_val.txt。   
-修改voc_annotation.py里面的参数。第一次训练可以仅修改classes_path，classes_path用于指向检测类别所对应的txt。   
-训练自己的数据集时，可以自己建立一个cls_classes.txt，里面写自己所需要区分的类别。   
-model_data/cls_classes.txt文件内容为：      
-```python
-cat
-dog
-...
-```
-修改voc_annotation.py中的classes_path，使其对应cls_classes.txt，并运行voc_annotation.py。  
-
-3. 开始网络训练  
-**训练的参数较多，均在train.py中，大家可以在下载库后仔细看注释，其中最重要的部分依然是train.py里的classes_path。**  
-**classes_path用于指向检测类别所对应的txt，这个txt和voc_annotation.py里面的txt一样！训练自己的数据集必须要修改！**  
-修改完classes_path后就可以运行train.py开始训练了，在训练多个epoch后，权值会生成在logs文件夹中。  
-
-4. 训练结果预测  
-训练结果预测需要用到两个文件，分别是yolo.py和predict.py。在yolo.py里面修改model_path以及classes_path。  
-**model_path指向训练好的权值文件，在logs文件夹里。  
-classes_path指向检测类别所对应的txt。**  
-完成修改后就可以运行predict.py进行检测了。运行后输入图片路径即可检测。  
+#### 6. 注意，文件夹存放的位置可能不同，相对应导入的包会报错，了解一下相对路径和绝对路径就知道了
 
 ## 预测步骤
 ### a、使用预训练权重
@@ -127,7 +114,7 @@ _defaults = {
     #   如果出现shape不匹配，同时要注意训练时的model_path和classes_path参数的修改
     #--------------------------------------------------------------------------#
     "model_path"        : 'model_data/yolo_weights.pth',
-    "classes_path"      : 'model_data/coco_classes.txt',
+    "classes_path"      : 'model_data/classes.txt',
     #---------------------------------------------------------------------#
     #   anchors_path代表先验框对应的txt文件，一般不修改。
     #   anchors_mask用于帮助代码找到对应的先验框，一般不修改。
@@ -158,7 +145,7 @@ _defaults = {
     "cuda"              : True,
 }
 ```
-3. 运行predict.py，输入  
+3. 运行predict.py，输入文件图片的路径进行预测  
 ```python
 img/street.jpg
 ```
