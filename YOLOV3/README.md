@@ -2,79 +2,73 @@
 ---
 
 ## 环境搭建
-torch2.0以上会遇到：
+torch2.0以上会遇到:
 * NotImplementedError: Could not run 'torchvision::nms' with arguments from the 'CUDA' backend. This could be because the operator doesn't exist for this backend, or was omitted during the selective/custom build process (if using custom build). If you are a Facebook employee using PyTorch on mobile, please visit https://fburl.com/ptmfixes for possible resolutions. 'torchvision::nms' is only available for these backends: [CPU, QuantizedCPU, BackendSelect, Python, FuncTorchDynamicLayerBackMode, Functionalize, Named, Conjugate, Negative, ZeroTensor, ADInplaceOrView, AutogradOther, AutogradCPU, AutogradCUDA, AutogradXLA, AutogradMPS, AutogradXPU, AutogradHPU, AutogradLazy, AutogradMeta, Tracer, AutocastCPU, AutocastCUDA, FuncTorchBatched, FuncTorchVmapMode, Batched, VmapMode, FuncTorchGradWrapper, PythonTLSSnapshot, FuncTorchDynamicLayerFrontMode, PythonDispatcher].
-目前在torch1.9中成功运行
-虚拟环境创建：conda create -n torch1.9 python=3.9
+
+大致是torch里面的nms在2.0以上无发找到，估计是个bug。
+
+目前在torch1.9中成功运行:
+
+### 从头开始搭建环境
+
+**1. 虚拟环境创建：conda create -n torch1.9 python=3.9**
+
 torch1.9安装指令：pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio===0.9.0 -f https://download.pytorch.org/whl/torch_stable.html  -i https://pypi.tuna.tsinghua.edu.cn/simple
+
 最好使用pip安装，conda指令有些问题。
 
+**2.【如果遇到了AttributeError: 'ImageDraw' object has no attribute 'textsize'】
+可以降低pillow版本  pip install Pillow==9.5.0**
 
-如果遇到了AttributeError: 'ImageDraw' object has no attribute 'textsize'
-可以降低pillow版本  pip install Pillow==9.5.0
-## 目录
-1. [仓库更新 Top News](#仓库更新)
-2. [相关仓库 Related code](#相关仓库)
-3. [性能情况 Performance](#性能情况)
-4. [所需环境 Environment](#所需环境)
-5. [文件下载 Download](#文件下载)
-6. [训练步骤 How2train](#训练步骤)
-7. [预测步骤 How2predict](#预测步骤)
-8. [评估步骤 How2eval](#评估步骤)
-9. [参考资料 Reference](#Reference)
+**3. 这里用到了可视化，所以要下载tensorboard**
 
-## Top News
-**`2022-04`**:**支持多GPU训练，新增各个种类目标数量计算，新增heatmap。**  
+pip install tensorboard -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-**`2022-03`**:**进行了大幅度的更新，修改了loss组成，使得分类、目标、回归loss的比例合适、支持step、cos学习率下降法、支持adam、sgd优化器选择、支持学习率根据batch_size自适应调整、新增图片裁剪。**  
-BiliBili视频中的原仓库地址为：https://github.com/bubbliiiing/yolo3-pytorch/tree/bilibili
+**4. mediapipe是pyzjr的一个依赖库，所以还是先装上它**
 
-**`2021-10`**:**进行了大幅度的更新，增加了大量注释、增加了大量可调整参数、对代码的组成模块进行修改、增加fps、视频预测、批量预测等功能。**   
+pip install mediapipe -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-## 相关仓库
-| 模型 | 路径 |
-| :----- | :----- |
-YoloV3 | https://github.com/bubbliiiing/yolo3-pytorch  
-Efficientnet-Yolo3 | https://github.com/bubbliiiing/efficientnet-yolo3-pytorch  
-YoloV4 | https://github.com/bubbliiiing/yolov4-pytorch
-YoloV4-tiny | https://github.com/bubbliiiing/yolov4-tiny-pytorch
-Mobilenet-Yolov4 | https://github.com/bubbliiiing/mobilenet-yolov4-pytorch
-YoloV5-V5.0 | https://github.com/bubbliiiing/yolov5-pytorch
-YoloV5-V6.1 | https://github.com/bubbliiiing/yolov5-v6.1-pytorch
-YoloX | https://github.com/bubbliiiing/yolox-pytorch
-YoloV7 | https://github.com/bubbliiiing/yolov7-pytorch
-YoloV7-tiny | https://github.com/bubbliiiing/yolov7-tiny-pytorch
+**5、安装pyzjr**
 
-## 性能情况
-| 训练数据集 | 权值文件名称 | 测试数据集 | 输入图片大小 | mAP 0.5:0.95 | mAP 0.5 |
-| :-----: | :-----: | :------: | :------: | :------: | :-----: |
-| COCO-Train2017 | [yolo_weights.pth](https://github.com/bubbliiiing/yolo3-pytorch/releases/download/v1.0/yolo_weights.pth) | COCO-Val2017 | 416x416 | 38.0 | 67.2
-
-## 所需环境
-torch == 1.2.0  
-详情请看requirements.txt，文件具有一定兼容性，已测试pytorch1.7和1.7.1可以正常运行。
+pip install pyzjr -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 ## 文件下载
-训练所需的yolo_weights.pth可以在百度云下载。  
-链接: https://pan.baidu.com/s/1hCV4kg8NyStkywLiAeEr3g   
-提取码: 6da3 
+训练所需的yolo_weights.pth可以在百度网盘下载。  
+链接:https://pan.baidu.com/s/12ZfwTF3lEGq2Iqyscv5kIg?pwd=4258 
+提取码:4258
 
-VOC数据集下载地址如下，里面已经包括了训练集、测试集、验证集（与测试集一样），无需再次划分：  
-链接: https://pan.baidu.com/s/19Mw2u_df_nBzsC2lg20fQA   
-提取码: j5ge   
+
 
 ## 训练步骤
-### a、训练VOC07+12数据集
-1. 数据集的准备   
-**本文使用VOC格式进行训练，训练前需要下载好VOC07+12的数据集，解压后放在根目录**  
+### a、训练数据集
+#### 1. 数据集的准备
+   
+这里自行准备，目录结构可以调用pyzjr查看
 
-2. 数据集的处理   
-修改voc_annotation.py里面的annotation_mode=2，运行voc_annotation.py生成根目录下的2007_train.txt和2007_val.txt。   
+````python
+import pyzjr.dlearn.voc as voc
 
-3. 开始网络训练   
+voc.voc_catalog()
+````
+
+控制台输出：
+````
+VOC Catalog:
+----------------------------------------------------------------------
+VOCdevkit
+    VOC2007
+        -ImageSets/Segmentation    Store training index files
+        -JPEGImages                Store image files
+        -SegmentationClass         Store label files
+----------------------------------------------------------------------
+````
+#### 3. 数据集的处理   
+修改voc_yolo.py里面的annotation_mode=2，运行voc_annotation.py生成根目录下的2007_train.txt和2007_val.txt。   
+
+#### 4. 开始网络训练   
 train.py的默认参数用于训练VOC数据集，直接运行train.py即可开始训练。   
 
-4. 训练结果预测   
+#### 5. 训练结果预测   
 训练结果预测需要用到两个文件，分别是yolo.py和predict.py。我们首先需要去yolo.py里面修改model_path以及classes_path，这两个参数必须要修改。   
 **model_path指向训练好的权值文件，在logs文件夹里。   
 classes_path指向检测类别所对应的txt。**   
@@ -164,20 +158,4 @@ img/street.jpg
 ```
 4. 在predict.py里面进行设置可以进行fps测试和video视频检测。  
 
-## 评估步骤 
-### a、评估VOC07+12的测试集
-1. 本文使用VOC格式进行评估。VOC07+12已经划分好了测试集，无需利用voc_annotation.py生成ImageSets文件夹下的txt。
-2. 在yolo.py里面修改model_path以及classes_path。**model_path指向训练好的权值文件，在logs文件夹里。classes_path指向检测类别所对应的txt。**  
-3. 运行get_map.py即可获得评估结果，评估结果会保存在map_out文件夹中。
 
-### b、评估自己的数据集
-1. 本文使用VOC格式进行评估。  
-2. 如果在训练前已经运行过voc_annotation.py文件，代码会自动将数据集划分成训练集、验证集和测试集。如果想要修改测试集的比例，可以修改voc_annotation.py文件下的trainval_percent。trainval_percent用于指定(训练集+验证集)与测试集的比例，默认情况下 (训练集+验证集):测试集 = 9:1。train_percent用于指定(训练集+验证集)中训练集与验证集的比例，默认情况下 训练集:验证集 = 9:1。
-3. 利用voc_annotation.py划分测试集后，前往get_map.py文件修改classes_path，classes_path用于指向检测类别所对应的txt，这个txt和训练时的txt一样。评估自己的数据集必须要修改。
-4. 在yolo.py里面修改model_path以及classes_path。**model_path指向训练好的权值文件，在logs文件夹里。classes_path指向检测类别所对应的txt。**  
-5. 运行get_map.py即可获得评估结果，评估结果会保存在map_out文件夹中。
-
-## Reference
-https://github.com/qqwweee/pytorch-yolo3  
-https://github.com/eriklindernoren/PyTorch-YOLOv3   
-https://github.com/BobLiu20/YOLOv3_PyTorch
